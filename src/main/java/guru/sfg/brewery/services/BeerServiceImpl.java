@@ -117,16 +117,17 @@ public class BeerServiceImpl implements BeerService {
     @Override
     public void updateBeer(UUID beerId, BeerDto beerDto) {
         Optional<Beer> beerOptional = beerRepository.findById(beerId);
-
-        beerOptional.ifPresentOrElse(beer -> {
+        if(beerOptional.isPresent()){
+        	Beer beer = beerOptional.get();
             beer.setBeerName(beerDto.getBeerName());
             beer.setBeerStyle(beerDto.getBeerStyle());
             beer.setPrice(beerDto.getPrice());
             beer.setUpc(beerDto.getUpc());
             beerRepository.save(beer);
-        }, () -> {
+        }else{
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not Found. UUID: " + beerId);
-        });
+        }
+        		
     }
 
     @Override

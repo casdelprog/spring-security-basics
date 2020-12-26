@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -60,13 +61,15 @@ public class DefaultBreweryLoader implements CommandLineRunner {
         customerRepository.save(tastingRoom);
 
         beerRepository.findAll().forEach(beer -> {
+        	Set<BeerOrderLine> beerOrderLine = new HashSet<BeerOrderLine>();
+        	beerOrderLine.add(BeerOrderLine.builder()
+                    .beer(beer)
+                    .orderQuantity(2)
+                    .build());
             beerOrderRepository.save(BeerOrder.builder()
                     .customer(tastingRoom)
                     .orderStatus(OrderStatusEnum.NEW)
-                    .beerOrderLines(Set.of(BeerOrderLine.builder()
-                            .beer(beer)
-                            .orderQuantity(2)
-                            .build()))
+                    .beerOrderLines(beerOrderLine)
                     .build());
         });
     }
