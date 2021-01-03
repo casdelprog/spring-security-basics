@@ -14,7 +14,7 @@ import guru.sfg.brewery.services.BeerService;
 import guru.sfg.brewery.services.BreweryService;
 
 @WebMvcTest
-class IndexControllerTestIT extends BaseIT{
+class IndexControllerIT extends BaseIT{
 
     @MockBean
     BeerRepository beerRepository;
