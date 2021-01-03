@@ -12,6 +12,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import guru.sfg.brewery.security.RestHeaderAuthFilter;
+import guru.sfg.brewery.security.RestUrlAuthFilter;
 import guru.sfg.brewery.security.SfgPasswordEncoderFactories;
 
 @Configuration
@@ -19,6 +20,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 
 	public RestHeaderAuthFilter restHeaderAuthFilter(AuthenticationManager authenticationManager) {
 		RestHeaderAuthFilter filter = new RestHeaderAuthFilter(new AntPathRequestMatcher("/api/**"));
+		filter.setAuthenticationManager(authenticationManager);
+		return filter;
+	}
+	
+	public RestUrlAuthFilter resUrlAuthFilter(AuthenticationManager authenticationManager) {
+		RestUrlAuthFilter filter = new RestUrlAuthFilter(new AntPathRequestMatcher("/api/**"));
 		filter.setAuthenticationManager(authenticationManager);
 		return filter;
 	}
@@ -34,6 +41,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 				restHeaderAuthFilter(authenticationManager()), 
 				UsernamePasswordAuthenticationFilter.class)
 		.csrf().disable();
+		
+		http.addFilterBefore(
+				resUrlAuthFilter(authenticationManager()), 
+				UsernamePasswordAuthenticationFilter.class);
 		
 		http
 		//added to default configuration to exclude rss and login from auth
