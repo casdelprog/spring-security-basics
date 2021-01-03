@@ -8,9 +8,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-//brings the context
-@WebMvcTest
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
 class BeerControllerTestIT extends BaseIT{
 
 	    @Test

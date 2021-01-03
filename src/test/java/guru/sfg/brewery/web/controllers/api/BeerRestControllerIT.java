@@ -6,14 +6,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import guru.sfg.brewery.web.controllers.BaseIT;
 
-@WebMvcTest
+@SpringBootTest
 class BeerRestControllerIT extends BaseIT {
 
-	
 	@Test
 	void deleteBeer() throws Exception {
 		mockMvc.perform(delete("/api/v1/beer/97df0c39-90c4-4ae0-b663-453e8e19c311").header("Api-Key", "spring")
