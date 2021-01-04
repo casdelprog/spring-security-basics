@@ -41,78 +41,81 @@ import lombok.RequiredArgsConstructor;
 @Controller
 public class CustomerController {
 
-    //ToDO: Add service
-    private final CustomerRepository customerRepository;
+	// ToDO: Add service
+	private final CustomerRepository customerRepository;
 
-    @RequestMapping("/find")
-    public String findCustomers(Model model){
-        model.addAttribute("customer", Customer.builder().build());
-        return "customers/findCustomers";
-    }
+	@PreAuthorize("hasAuthority('customer.read')")
+	@RequestMapping("/find")
+	public String findCustomers(Model model) {
+		model.addAttribute("customer", Customer.builder().build());
+		return "customers/findCustomers";
+	}
 
-    @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
-    public String processFindFormReturnMany(Customer customer, BindingResult result, Model model){
-        // find customers by name
-        //ToDO: Add Service
-        List<Customer> customers = customerRepository.findAllByCustomerNameLike("%" + customer.getCustomerName() + "%");
-        if (customers.isEmpty()) {
-            // no customers found
-            result.rejectValue("customerName", "notFound", "not found");
-            return "customers/findCustomers";
-        } else if (customers.size() == 1) {
-            // 1 customer found
-            customer = customers.get(0);
-            return "redirect:/customers/" + customer.getId();
-        } else {
-            // multiple customers found
-            model.addAttribute("selections", customers);
-            return "customers/customerList";
-        }
-    }
+	@GetMapping
+	@PreAuthorize("hasAuthority('customer.read')")
+	public String processFindFormReturnMany(Customer customer, BindingResult result, Model model) {
+		// find customers by name
+		// ToDO: Add Service
+		List<Customer> customers = customerRepository.findAllByCustomerNameLike("%" + customer.getCustomerName() + "%");
+		if (customers.isEmpty()) {
+			// no customers found
+			result.rejectValue("customerName", "notFound", "not found");
+			return "customers/findCustomers";
+		} else if (customers.size() == 1) {
+			// 1 customer found
+			customer = customers.get(0);
+			return "redirect:/customers/" + customer.getId();
+		} else {
+			// multiple customers found
+			model.addAttribute("selections", customers);
+			return "customers/customerList";
+		}
+	}
 
-   @GetMapping("/{customerId}")
-    public ModelAndView showCustomer(@PathVariable UUID customerId) {
-        ModelAndView mav = new ModelAndView("customers/customerDetails");
-        //ToDO: Add Service
-        mav.addObject(customerRepository.findById(customerId).get());
-        return mav;
-    }
+	@PreAuthorize("hasAuthority('customer.read')")
+	@GetMapping("/{customerId}")
+	public ModelAndView showCustomer(@PathVariable UUID customerId) {
+		ModelAndView mav = new ModelAndView("customers/customerDetails");
+		// ToDO: Add Service
+		mav.addObject(customerRepository.findById(customerId).get());
+		return mav;
+	}
 
-    @GetMapping("/new")
-    public String initCreationForm(Model model) {
-        model.addAttribute("customer", Customer.builder().build());
-        return "customers/createCustomer";
-    }
+	@PreAuthorize("hasAuthority('customer.create')")
+	@GetMapping("/new")
+	public String initCreationForm(Model model) {
+		model.addAttribute("customer", Customer.builder().build());
+		return "customers/createCustomer";
+	}
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/new")
-    public String processCreationForm(Customer customer) {
-        //ToDO: Add Service
-        Customer newCustomer = Customer.builder()
-                .customerName(customer.getCustomerName())
-                .build();
+	@PreAuthorize("hasAuthority('customer.create')")
+	@PostMapping("/new")
+	public String processCreationForm(Customer customer) {
+		// ToDO: Add Service
+		Customer newCustomer = Customer.builder().customerName(customer.getCustomerName()).build();
 
-        Customer savedCustomer= customerRepository.save(newCustomer);
-        return "redirect:/customers/" + savedCustomer.getId();
-    }
+		Customer savedCustomer = customerRepository.save(newCustomer);
+		return "redirect:/customers/" + savedCustomer.getId();
+	}
 
-    @GetMapping("/{customerId}/edit")
-   public String initUpdateCustomerForm(@PathVariable UUID customerId, Model model) {
-       if(customerRepository.findById(customerId).isPresent())
-          model.addAttribute("customer", customerRepository.findById(customerId).get());
-       return "customers/createOrUpdateCustomer";
-   }
+	@PreAuthorize("hasAuthority('customer.update')")
+	@GetMapping("/{customerId}/edit")
+	public String initUpdateCustomerForm(@PathVariable UUID customerId, Model model) {
+		if (customerRepository.findById(customerId).isPresent())
+			model.addAttribute("customer", customerRepository.findById(customerId).get());
+		return "customers/createOrUpdateCustomer";
+	}
 
-    @PostMapping("/{beerId}/edit")
-    public String processUpdationForm(@Valid Customer customer, BindingResult result) {
-        if (result.hasErrors()) {
-            return "beers/createOrUpdateCustomer";
-        } else {
-            //ToDO: Add Service
-            Customer savedCustomer =  customerRepository.save(customer);
-            return "redirect:/customers/" + savedCustomer.getId();
-        }
-    }
+	@PreAuthorize("hasAuthority('customer.update')")
+	@PostMapping("/{beerId}/edit")
+	public String processUpdationForm(@Valid Customer customer, BindingResult result) {
+		if (result.hasErrors()) {
+			return "beers/createOrUpdateCustomer";
+		} else {
+			// ToDO: Add Service
+			Customer savedCustomer = customerRepository.save(customer);
+			return "redirect:/customers/" + savedCustomer.getId();
+		}
+	}
 
 }
