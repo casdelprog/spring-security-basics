@@ -40,10 +40,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import guru.sfg.brewery.security.perms.BeerCreatePermission;
-import guru.sfg.brewery.security.perms.BeerDeletePermission;
-import guru.sfg.brewery.security.perms.BeerReadPermission;
-import guru.sfg.brewery.security.perms.BeerUpdatePermission;
+import guru.sfg.brewery.security.perms.BeerPermissions;
 import guru.sfg.brewery.services.BeerService;
 import guru.sfg.brewery.web.model.BeerDto;
 import guru.sfg.brewery.web.model.BeerPagedList;
@@ -62,7 +59,7 @@ public class BeerRestController {
 
     private final BeerService beerService;
 
-    @BeerReadPermission
+    @BeerPermissions.ReadEntity
     @GetMapping(produces = { "application/json" }, path = "beer")
     public ResponseEntity<BeerPagedList> listBeers(@RequestParam(value = "pageNumber", required = false) Integer pageNumber,
                                                    @RequestParam(value = "pageSize", required = false) Integer pageSize,
@@ -89,7 +86,7 @@ public class BeerRestController {
         return new ResponseEntity<>(beerList, HttpStatus.OK);
     }
 
-    @BeerReadPermission
+    @BeerPermissions.ReadEntity
     @GetMapping(path = {"beer/{beerId}"}, produces = { "application/json" })
     public ResponseEntity<BeerDto> getBeerById(@PathVariable("beerId") UUID beerId,
                                                @RequestParam(value = "showInventoryOnHand", required = false) Boolean showInventoryOnHand){
@@ -103,13 +100,13 @@ public class BeerRestController {
         return new ResponseEntity<>(beerService.findBeerById(beerId, showInventoryOnHand), HttpStatus.OK);
     }
     
-    @BeerReadPermission
+    @BeerPermissions.ReadEntity
     @GetMapping(path = {"beerUpc/{upc}"}, produces = { "application/json" })
     public ResponseEntity<BeerDto> getBeerByUpc(@PathVariable("upc") String upc){
         return new ResponseEntity<>(beerService.findBeerByUpc(upc), HttpStatus.OK);
     }
 
-    @BeerCreatePermission
+    @BeerPermissions.CreateEntity
     @PostMapping(path = "beer")
     public ResponseEntity saveNewBeer(@Valid @RequestBody BeerDto beerDto){
 
@@ -122,7 +119,7 @@ public class BeerRestController {
         return new ResponseEntity(httpHeaders, HttpStatus.CREATED);
     }
 
-    @BeerUpdatePermission
+    @BeerPermissions.UpdateEntity
 	@PutMapping(path = {"beer/{beerId}"}, produces = { "application/json" })
     public ResponseEntity updateBeer(@PathVariable("beerId") UUID beerId, @Valid @RequestBody BeerDto beerDto){
 
@@ -131,7 +128,7 @@ public class BeerRestController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
     
-    @BeerDeletePermission
+    @BeerPermissions.DeleteEntity
     @DeleteMapping({"beer/{beerId}"})
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteBeer(@PathVariable("beerId") UUID beerId){
