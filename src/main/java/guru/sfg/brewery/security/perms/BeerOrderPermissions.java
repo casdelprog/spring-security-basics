@@ -26,4 +26,12 @@ public @interface BeerOrderPermissions {
 	        " AND @beerOrderAuthenticationManager.customerIdMatches(authentication, #customerId )")
 	@interface ReadEntity {
 	}
+	
+	@Target(ElementType.METHOD)
+	@Retention(RetentionPolicy.RUNTIME)
+	@PreAuthorize("hasAuthority('order.pickup') OR " +
+	        "hasAuthority('customer.order.pickup') " +
+	        " AND @beerOrderAuthenticationManager.customerIdMatches(authentication, #customerId )")
+	@interface Pickup {
+	}
 }
