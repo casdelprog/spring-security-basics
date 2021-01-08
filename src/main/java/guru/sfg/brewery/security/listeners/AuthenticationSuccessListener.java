@@ -1,5 +1,6 @@
 package guru.sfg.brewery.security.listeners;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -7,25 +8,35 @@ import org.springframework.security.authentication.event.AuthenticationSuccessEv
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.stereotype.Component;
 
+import guru.sfg.brewery.domain.security.LoginSuccess;
 import guru.sfg.brewery.domain.security.User;
+import guru.sfg.brewery.repositories.security.LoginSuccessRepository;
 
 @Slf4j
+@RequiredArgsConstructor
 @Component
 public class AuthenticationSuccessListener {
 
+	private final LoginSuccessRepository loginSuccessRepository;
+	
 	@EventListener
 	public void listen(AuthenticationSuccessEvent event) {
 		if (event.getSource() instanceof UsernamePasswordAuthenticationToken) {
+            LoginSuccess.LoginSuccessBuilder builder = LoginSuccess.builder();
 			UsernamePasswordAuthenticationToken token = (UsernamePasswordAuthenticationToken) event.getSource();
 			if (token.getPrincipal() instanceof User) {
-				User loggedUser = (User) event.getAuthentication().getPrincipal();
-				log.debug("Logged with user: {}.", loggedUser.getUsername());
+				User user = (User) event.getAuthentication().getPrincipal();
+				log.debug("Logged with user: {}.", user.getUsername());
+                builder.user(user);
 			}
 			if (token.getDetails() instanceof WebAuthenticationDetails) {
 				WebAuthenticationDetails details = (WebAuthenticationDetails) token.getDetails();
-
 				log.debug("Source IP: " + details.getRemoteAddress());
+                builder.sourceIp(details.getRemoteAddress());
 			}
+            LoginSuccess loginSuccess = loginSuccessRepository.save(builder.build());
+
+            log.debug("Login Success saved. Id: {}", loginSuccess.getId());
 		}
 	}
 }
