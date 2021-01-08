@@ -9,9 +9,11 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.data.repository.query.SecurityEvaluationContextExtension;
+import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import guru.sfg.brewery.security.SfgPasswordEncoderFactories;
+import guru.sfg.brewery.security.google.Google2FaFilter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -21,7 +23,8 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig extends WebSecurityConfigurerAdapter{
 
     private final UserDetailsService userDetailsService;
-	
+    private final Google2FaFilter google2FaFilter;
+
 	@Bean
     PasswordEncoder passwordEncoder(){	   
 		return SfgPasswordEncoderFactories.createDelegatingPasswordEncoder();
@@ -36,6 +39,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 
+		http.addFilterBefore(google2FaFilter, SessionManagementFilter.class);
+		
 		http
 		//added to default configuration to exclude rss and login from auth
 		.authorizeRequests(auth -> {
